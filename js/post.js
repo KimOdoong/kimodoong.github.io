@@ -1,3 +1,29 @@
+function renderGiscus() {
+  const container = document.getElementById("giscusContainer");
+  if (!container) return;
+
+  container.innerHTML = "";
+
+  const script = document.createElement("script");
+  script.src = "https://giscus.app/client.js";
+  script.async = true;
+  script.crossOrigin = "anonymous";
+
+  script.setAttribute("data-repo", "kimodoong/kimodoong.github.io");
+  script.setAttribute("data-repo-id", "R_kgDOSEKH8w");
+  script.setAttribute("data-category", "Announcements");
+  script.setAttribute("data-category-id", "DIC_kwDOSEKH884C697E");
+  script.setAttribute("data-mapping", "url");
+  script.setAttribute("data-strict", "0");
+  script.setAttribute("data-reactions-enabled", "1");
+  script.setAttribute("data-emit-metadata", "0");
+  script.setAttribute("data-input-position", "bottom");
+  script.setAttribute("data-theme", "preferred_color_scheme");
+  script.setAttribute("data-lang", "ko");
+
+  container.appendChild(script);
+}
+
 async function initPostPage() {
   const contentElement = document.getElementById("postContent");
   const titleElement = document.getElementById("postTitle");
