@@ -142,6 +142,7 @@ async function initPostPage() {
     
     bindActiveSidebarToc(contentElement);
     renderGiscus();
+    bindGiscusManageLink();
     initProtectedImages();
   } catch (error) {
     console.error(error);
