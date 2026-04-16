@@ -160,3 +160,20 @@ body.post-hide-sidebar .site-wrap {
     padding: 20px 16px;
   }
 }
+
+
+
+.comments-section {
+  margin-top: 18px;
+  padding-top: 18px;
+  border-top: 1px solid rgba(255,255,255,0.08);
+}
+
+#giscusContainer {
+  margin-top: 8px;
+}
+
+.giscus,
+.giscus-frame {
+  width: 100%;
+}
