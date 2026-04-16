@@ -16,7 +16,7 @@ function renderGiscus() {
   script.setAttribute("data-mapping", "url");
   script.setAttribute("data-strict", "0");
   script.setAttribute("data-reactions-enabled", "1");
-  script.setAttribute("data-emit-metadata", "0");
+  script.setAttribute("data-emit-metadata", "1");
   script.setAttribute("data-input-position", "bottom");
   script.setAttribute("data-theme", "preferred_color_scheme");
   script.setAttribute("data-lang", "ko");
