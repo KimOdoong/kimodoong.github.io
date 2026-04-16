@@ -29,6 +29,9 @@ function bindGiscusManageLink() {
   const manageLink = document.getElementById("giscusManageLink");
   if (!manageLink) return;
 
+  manageLink.classList.add("hidden");
+  manageLink.href = "#";
+
   function handleMessage(event) {
     if (event.origin !== "https://giscus.app") return;
     if (!(typeof event.data === "object" && event.data?.giscus)) return;
@@ -43,13 +46,16 @@ function bindGiscusManageLink() {
       discussion?.browserUrl ||
       "";
 
-    if (!discussionUrl) return;
-
-    manageLink.href = discussionUrl;
-    manageLink.classList.remove("hidden");
+    if (
+      typeof discussionUrl === "string" &&
+      discussionUrl.startsWith("https://github.com/")
+    ) {
+      manageLink.href = discussionUrl;
+      manageLink.classList.remove("hidden");
+    }
   }
 
-  window.addEventListener("message", handleMessage);
+  window.addEventListener("message", handleMessage, { once: false });
 }
 
 
