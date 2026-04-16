@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>All Items</title>
+  <link id="dynamicFavicon" rel="icon" type="image/png" href="" />
+  <link rel="stylesheet" href="./css/main.css" />
+</head>
+<body>
+  <div class="stars" id="stars"></div>
+  <div class="nebula-layer"></div>
+
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a  class="topbar-brand" href="./index.html" id="topbarBrand">김오둥</a>
+      <nav class="topbar-nav">
+        <a href="./index.html" class="topbar-link">Home</a>
+        <a href="./blog.html" class="topbar-link active">Blog</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="site-wrap">
+    <aside class="sidebar" id="sidebar"></aside>
+
+    <main class="main">
+      <section class="main-header">
+        <div class="main-header-top">
+          <h1 class="page-title" id="allPageTitle">전체 보기</h1>
+        </div>
+      </section>
+
+      <section id="allItemsGrid" class="all-items-grid"></section>
+    </main>
+  </div>
+
+  <footer class="footer" id="footer"></footer>
+
+  <script src="./js/utils.js"></script>
+  <script src="./js/all.js"></script>
+</body>
+</html>

@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>김오둥</title>
+  <link id="dynamicFavicon" rel="icon" type="image/png" href="" />
+  <link rel="stylesheet" href="./css/main.css" />
+</head>
+<body>
+  <div class="stars" id="stars"></div>
+  <div class="nebula-layer"></div>
+
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a  class="topbar-brand" href="./index.html" id="topbarBrand">김오둥</a>
+      <nav class="topbar-nav">
+        <a href="./index.html" class="topbar-link active">Home</a>
+        <a href="./blog.html" class="topbar-link">Blog</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="simple-home">
+    <section class="simple-home-hero">
+      <div class="home-hero-profile">
+        <div class="home-hero-profile-image" id="heroProfileImage"></div>
+        <div class="home-hero-profile-name" id="heroTitle">김오둥</div>
+      </div>
+
+      <p class="simple-home-eyebrow">Personal Site</p>
+      <p class="simple-home-subtitle" id="heroSubtitle"></p>
+      <p class="simple-home-description" id="heroDescription"></p>
+
+      <div class="simple-home-actions">
+        <a href="./blog.html" class="primary-button">블로그 보러가기</a>
+      </div>
+    </section>
+
+    <section class="simple-home-panel">
+      <div class="tab-button-row" id="tabButtonRow"></div>
+      <div class="simple-home-content" id="tabContentPanel"></div>
+    </section>
+  </main>
+
+  <footer class="footer" id="footer"></footer>
+
+  <script src="./js/utils.js"></script>
+  <script src="./js/main.js"></script>
+</body>
+</html>

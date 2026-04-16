@@ -1,0 +1,73 @@
+{
+  "siteTitle": "김오둥 블로그",
+  "branding": {
+    "logoPath": "./assets/IMG_1533.jpg",
+    "logoAlt": "김오둥 로고",
+    "title": "김오둥"
+  },
+  "pageTitle": "블로그 글 목록",
+  "profile": {
+    "name": "김오둥",
+    "description": "게임 개발, 공부, 감상, 기록을 차곡차곡 쌓아가는 개인 블로그.",
+    "imagePath": "./assets/IMG_1533.jpg",
+    "showDescription": true
+  },
+  "sidebar": {
+    "showLinks": true,
+    "showTags": true,
+    "showCategories": true
+  },
+
+  "links": [
+    {
+      "label": "GitHub",
+      "url": "https://github.com/rlagywnd",
+      "iconPath": "./assets/icons/github.svg"
+    },
+    {
+      "label": "X",
+      "url": "https://x.com/rladhend0302",
+      "iconPath": "./assets/icons/x.svg"
+    },
+    {
+      "label": "Email",
+      "url": "odoong0532@gmail.com",
+      "iconPath": "./assets/icons/email.svg"
+    }
+  ],
+  "postsPerPage": 5,
+  "postPage": {
+    "hideSidebar": false
+  },
+  "effects": {
+    "starCount": 260
+  },
+  "footer": {
+    "followLabel": "팔로우:",
+    "items": [
+      {
+        "label": "GitHub",
+        "url": "https://github.com/rlagywnd"
+      },
+      {
+        "label": "이메일",
+        "url": "odoong0532@gmail.com"
+      }
+    ],
+    "copyright": "© 2026 김오둥."
+  },
+  "theme": {
+    "bgTop": "#070d1e",
+    "bgMid": "#0d1630",
+    "bgBottom": "#151f45",
+    "accent1": "#63dcff",
+    "accent2": "#77b5ff",
+    "accent3": "#8e97ff",
+    "accent4": "#b27eff",
+    "textMain": "#eef4ff",
+    "textSoft": "rgba(238, 244, 255, 0.78)",
+    "textDim": "rgba(238, 244, 255, 0.58)",
+    "border": "rgba(255, 255, 255, 0.10)",
+    "panel": "rgba(255, 255, 255, 0.06)"
+  }
+}

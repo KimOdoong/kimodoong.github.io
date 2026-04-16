@@ -1,0 +1,22 @@
+.all-items-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 12px;
+}
+
+.all-item-card {
+  border-radius: var(--radius-md);
+  padding: 16px;
+  transition: transform 0.16s ease, background 0.16s ease, border-color 0.16s ease;
+}
+
+.all-item-card:hover {
+  transform: translateY(-2px);
+  background: rgba(255,255,255,0.08);
+  border-color: rgba(119, 181, 255, 0.20);
+}
+
+.all-item-label {
+  color: var(--text-main);
+  font-weight: 800;
+}

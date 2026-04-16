@@ -1,0 +1,27 @@
+{
+  "hero": {
+    "title": "김오둥",
+    "subtitle": "ㅎㅇ",
+    "description": "ㅎㅇ"
+  },
+  "tabs": [
+    {
+      "id": "career",
+      "label": "이력",
+      "title": "이력",
+      "htmlPath": "./content/intro-career.html"
+    },
+    {
+      "id": "works",
+      "label": "작업",
+      "title": "작업",
+      "htmlPath": "./content/intro-works.html"
+    },
+    {
+      "id": "contest",
+      "label": "대회",
+      "title": "대회",
+      "htmlPath": "./content/intro-contest.html"
+    }
+  ]
+}

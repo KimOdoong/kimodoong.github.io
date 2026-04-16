@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Post</title>
+  <link id="dynamicFavicon" rel="icon" type="image/png" href="" />
+  <link rel="stylesheet" href="./css/main.css" />
+</head>
+<body>
+  <div class="stars" id="stars"></div>
+  <div class="nebula-layer"></div>
+
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a  class="topbar-brand" href="./index.html" id="topbarBrand">김오둥</a>
+      <nav class="topbar-nav">
+        <a href="./index.html" class="topbar-link">Home</a>
+        <a href="./blog.html" class="topbar-link active">Blog</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="site-wrap">
+    <aside class="sidebar" id="sidebar"></aside>
+
+    <main class="main">
+      <div class="post-layout">
+        <article class="post-view">
+  <a class="back-link" href="./blog.html">← 목록으로</a>
+
+  <header class="post-view-header">
+    <div class="post-view-meta" id="postMeta"></div>
+    <h1 class="post-view-title" id="postTitle"></h1>
+  </header>
+
+  <div class="markdown-body" id="postContent"></div>
+
+  <section class="post-bottom-meta">
+    <div class="post-bottom-row">
+      <span class="meta-label">Category</span>
+      <div id="postCategory" class="post-bottom-chips"></div>
+    </div>
+
+    <div class="post-bottom-row">
+      <span class="meta-label">Tags</span>
+      <div id="postTags" class="post-bottom-chips"></div>
+    </div>
+
+    <section id="commentsSection" class="comments-section"></section>
+  </section>
+</article>
+
+        <aside class="post-toc" id="postToc"></aside>
+      </div>
+    </main>
+  </div>
+
+  <footer class="footer" id="footer"></footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <script src="./js/utils.js"></script>
+  <script src="./js/post.js"></script>
+</body>
+</html>
