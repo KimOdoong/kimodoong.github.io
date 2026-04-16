@@ -102,7 +102,7 @@ async function initPostPage() {
     contentElement.innerHTML = marked.parse(post.content);
 
     const tocHtml = buildSidebarTableOfContents(contentElement);
-
+    
     renderSidebar(config, posts, {
       showLinks: false,
       showTags: false,
@@ -110,8 +110,9 @@ async function initPostPage() {
       extraHtml: tocHtml,
       profileHref: "./blog.html"
     });
-
+    
     bindActiveSidebarToc(contentElement);
+    renderGiscus();
     initProtectedImages();
   } catch (error) {
     console.error(error);
