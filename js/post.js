@@ -29,8 +29,11 @@ function bindGiscusManageLink() {
   const manageLink = document.getElementById("giscusManageLink");
   if (!manageLink) return;
 
-  manageLink.classList.add("hidden");
-  manageLink.href = "#";
+  const fallbackUrl = "https://github.com/kimodoong/kimodoong.github.io/discussions";
+
+  manageLink.href = fallbackUrl;
+  manageLink.classList.remove("hidden");
+  manageLink.textContent = "GitHub Discussions에서 댓글 관리하기 ↗";
 
   function handleMessage(event) {
     if (event.origin !== "https://giscus.app") return;
@@ -51,11 +54,11 @@ function bindGiscusManageLink() {
       discussionUrl.startsWith("https://github.com/")
     ) {
       manageLink.href = discussionUrl;
-      manageLink.classList.remove("hidden");
+      manageLink.textContent = "GitHub에서 이 글 댓글 관리하기 ↗";
     }
   }
 
-  window.addEventListener("message", handleMessage, { once: false });
+  window.addEventListener("message", handleMessage);
 }
 
 
