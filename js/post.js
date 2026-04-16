@@ -24,6 +24,35 @@ function renderGiscus() {
   container.appendChild(script);
 }
 
+
+function bindGiscusManageLink() {
+  const manageLink = document.getElementById("giscusManageLink");
+  if (!manageLink) return;
+
+  function handleMessage(event) {
+    if (event.origin !== "https://giscus.app") return;
+    if (!(typeof event.data === "object" && event.data?.giscus)) return;
+
+    const giscusData = event.data.giscus;
+    if (!("discussion" in giscusData)) return;
+
+    const discussion = giscusData.discussion;
+    const discussionUrl =
+      discussion?.url ||
+      discussion?.html_url ||
+      discussion?.browserUrl ||
+      "";
+
+    if (!discussionUrl) return;
+
+    manageLink.href = discussionUrl;
+    manageLink.classList.remove("hidden");
+  }
+
+  window.addEventListener("message", handleMessage);
+}
+
+
 async function initPostPage() {
   const contentElement = document.getElementById("postContent");
   const titleElement = document.getElementById("postTitle");
