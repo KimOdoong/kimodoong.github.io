@@ -59,10 +59,6 @@ ST
 
 [youtube width=70% height=70% align=center]https://youtu.be/zqWQaTovHU8[/youtube]
 
-오른쪽 고정 크기:
-
-[youtube width=640px height=360px align=right]https://youtu.be/zqWQaTovHU8[/youtube]
-
 ## 컬럼 테스트
 
 [columns]
