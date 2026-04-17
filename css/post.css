@@ -374,3 +374,28 @@ body.post-hide-sidebar .site-wrap {
         grid-template-columns: 1fr;
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+.youtube-embed {
+    outline: 5px solid red !important;
+}
+
+.sc-message {
+    border: 5px solid lime !important;
+}
+
+.sc-fold {
+    border: 5px solid cyan !important;
+}
