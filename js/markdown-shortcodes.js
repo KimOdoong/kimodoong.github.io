@@ -460,28 +460,30 @@
   });
 
   processor.registerBlock("linkcard", function (content, attrs) {
-    const href = attrs.href ? attrs.href.trim() : "";
-    const title = attrs.title ? attrs.title.trim() : content.trim() || href;
-    const desc = attrs.desc ? attrs.desc.trim() : "";
-    const target = attrs.target ? attrs.target.trim() : "_blank";
+  const href = attrs.href ? attrs.href.trim() : "";
+  const title = attrs.title ? attrs.title.trim() : content.trim() || href;
+  const target = attrs.target ? attrs.target.trim() : "_blank";
 
-    if (!href) {
-      return `<div class="shortcode-error">linkcard에 href가 없습니다.</div>`;
-    }
+  const inline =
+    attrs.inline === "true" ||
+    attrs.inline === "1" ||
+    attrs.inline === "yes";
 
-    const safeHref = escapeHtmlAttr(href);
-    const safeTitle = escapeHtml(title);
-    const safeDesc = escapeHtml(desc);
-    const safeTarget = escapeHtmlAttr(target);
+  if (!href) {
+    return `<div class="shortcode-error">linkcard에 href가 없습니다.</div>`;
+  }
 
-    return (
-      `<a class="sc-linkcard" href="${safeHref}" target="${safeTarget}" rel="noopener noreferrer">` +
-        `<div class="sc-linkcard-title">${safeTitle}</div>` +
-        (safeDesc ? `<div class="sc-linkcard-desc">${safeDesc}</div>` : "") +
-        `<div class="sc-linkcard-url">${safeHref}</div>` +
-      `</a>`
-    );
-  });
+  const safeHref = escapeHtmlAttr(href);
+  const safeTitle = escapeHtml(title);
+  const safeTarget = escapeHtmlAttr(target);
+  const className = inline ? "sc-linkbutton sc-linkbutton-inline" : "sc-linkbutton";
+
+  return (
+    `<a class="${className}" href="${safeHref}" target="${safeTarget}" rel="noopener noreferrer">` +
+      `${safeTitle}` +
+    `</a>`
+  );
+});
 
   global.MarkdownShortcodes = {
     render: processor.render,

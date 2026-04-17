@@ -6,6 +6,9 @@
 }
 ---
 # Test1
+
+
+
  
 # 숏코드 테스트
 
@@ -76,8 +79,9 @@ ST
 
 ## 스포일러 테스트
 
-여기에 [spoiler]중요한 결론[/spoiler] 이 숨어 있습니다.
+여기에 [spoiler]스포일러[/spoiler] 가 숨어 있습니다.
 
 ## 링크 카드 테스트
 
-[linkcard href="https://docs.unity3d.com/" title="Unity 공식 문서" desc="Unity 개발 공식 문서 사이트"][/linkcard]
+[linkcard href="https://www.youtube.com/" title="유튜브"][/linkcard]
+ 

@@ -212,8 +212,9 @@ function buildSidebarTableOfContents(contentElement) {
 function bindActiveSidebarToc(contentElement) {
   const headings = Array.from(contentElement.querySelectorAll("h1, h2, h3"));
   const tocLinks = Array.from(document.querySelectorAll(".toc-item"));
+  const sidebarScroll = document.querySelector(".sidebar-scroll");
 
-  if (headings.length === 0 || tocLinks.length === 0) {
+  if (headings.length === 0 || tocLinks.length === 0 || !sidebarScroll) {
     return;
   }
 
@@ -221,6 +222,21 @@ function bindActiveSidebarToc(contentElement) {
   tocLinks.forEach(link => {
     linkMap.set(link.dataset.targetId, link);
   });
+
+  function keepActiveLinkVisible(activeLink) {
+    const containerRect = sidebarScroll.getBoundingClientRect();
+    const linkRect = activeLink.getBoundingClientRect();
+    const padding = 12;
+
+    const topLimit = containerRect.top + padding;
+    const bottomLimit = containerRect.bottom - padding;
+
+    if (linkRect.top < topLimit) {
+      sidebarScroll.scrollTop -= (topLimit - linkRect.top);
+    } else if (linkRect.bottom > bottomLimit) {
+      sidebarScroll.scrollTop += (linkRect.bottom - bottomLimit);
+    }
+  }
 
   function updateActiveToc() {
     let currentHeading = headings[0];
@@ -239,6 +255,7 @@ function bindActiveSidebarToc(contentElement) {
     const activeLink = linkMap.get(currentHeading.id);
     if (activeLink) {
       activeLink.classList.add("active");
+      keepActiveLinkVisible(activeLink);
     }
   }
 

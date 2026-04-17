@@ -1,3 +1,10 @@
+.post-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 22px;
+  align-items: start;
+}
+
 .post-view {
   border-radius: var(--radius-lg);
   padding: 28px 32px;
@@ -156,6 +163,10 @@ body.post-hide-sidebar .site-wrap {
 }
 
 @media (max-width: 700px) {
+  .post-layout {
+    gap: 16px;
+  }
+
   .post-view {
     padding: 20px 16px;
   }
@@ -374,3 +385,78 @@ body.post-hide-sidebar .site-wrap {
         grid-template-columns: 1fr;
     }
 } 
+
+.sc-linkbutton {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin: 0.9rem 0;
+    padding: 0.85rem 1.2rem;
+    border-radius: 18px;
+    text-decoration: none;
+    color: inherit;
+    font-weight: 800;
+    font-size: 1rem;
+    line-height: 1.2;
+    vertical-align: middle;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    background:
+        linear-gradient(180deg, rgba(255,255,255,0.05), rgba(255,255,255,0.025)),
+        rgba(255, 255, 255, 0.025);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.14);
+    transition:
+        transform 0.15s ease,
+        border-color 0.15s ease,
+        background 0.15s ease,
+        box-shadow 0.15s ease;
+}
+
+.sc-linkbutton::after {
+    content: "↗";
+    font-size: 0.9rem;
+    opacity: 0.72;
+}
+
+.sc-linkbutton:hover {
+    transform: translateY(-1px);
+    border-color: rgba(120, 190, 255, 0.32);
+    background:
+        linear-gradient(180deg, rgba(120,190,255,0.09), rgba(255,255,255,0.03)),
+        rgba(255, 255, 255, 0.035);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.2);
+}
+
+.sc-linkbutton-inline {
+    margin: 0 0.2em;
+    padding: 0.28em 0.72em;
+    border-radius: 999px;
+    font-size: 0.92em;
+    line-height: 1.1;
+    font-weight: 700;
+    vertical-align: baseline;
+    box-shadow: none;
+}
+
+.sc-linkbutton-inline:hover {
+    transform: none;
+}
+
+
+/* .post-sidebar-toc-card {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  max-height: 32vh;
+  overflow: hidden;
+}
+
+.post-sidebar-toc-card .toc-list {
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-right: 6px;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(126, 170, 255, 0.45) rgba(255, 255, 255, 0.04);
+} */
+
+

@@ -503,25 +503,30 @@ function renderSidebar(config, posts, options = {}) {
     : "";
 
   sidebar.innerHTML = `
-    <a href="${escapeHtml(profileHref)}" class="sidebar-card profile-card profile-card-link">
-      <div class="profile-image">
-        <img
-          class="protected-image"
-          src="${escapeHtml(config.profile.imagePath)}"
-          alt="프로필 사진"
-          onerror="this.remove(); this.parentNode.innerHTML='<div class=&quot;profile-fallback&quot;>K</div>';"
-        >
-      </div>
-      <div class="profile-name">${escapeHtml(config.profile.name)}</div>
-      ${config.profile.showDescription ? `<p class="profile-desc">${escapeHtml(config.profile.description)}</p>` : ""}
-    </a>
+    <div class="sidebar-profile">
+      <a href="${escapeHtml(profileHref)}" class="sidebar-card profile-card profile-card-link">
+        <div class="profile-image">
+          <img
+            class="protected-image"
+            src="${escapeHtml(config.profile.imagePath)}"
+            alt="프로필 사진"
+            onerror="this.remove(); this.parentNode.innerHTML='<div class=&quot;profile-fallback&quot;>K</div>';"
+          >
+        </div>
+        <div class="profile-name">${escapeHtml(config.profile.name)}</div>
+        ${config.profile.showDescription ? `<p class="profile-desc">${escapeHtml(config.profile.description)}</p>` : ""}
+      </a>
+    </div>
 
-    ${extraHtml}
-    ${linksHtml}
-    ${tagsHtml}
-    ${categoriesHtml}
+    <div class="sidebar-scroll">
+      ${extraHtml}
+      ${linksHtml}
+      ${tagsHtml}
+      ${categoriesHtml}
+    </div>
   `;
 }
+
 
 function slugifyHeading(text, fallbackIndex) {
   const slug = text

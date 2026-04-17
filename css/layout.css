@@ -27,6 +27,82 @@
   display: flex;
   flex-direction: column;
   gap: 14px;
+
+  max-height: calc(100dvh - 48px);
+  min-height: 0;
+  overflow: hidden;
+}
+
+.sidebar-profile {
+  flex: 0 0 auto;
+}
+
+.sidebar-scroll {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding-right: 6px;
+
+  overscroll-behavior-y: contain;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(126, 170, 255, 0.45) rgba(255, 255, 255, 0.04);
+}
+
+.sidebar-scroll::-webkit-scrollbar {
+  width: 8px;
+}
+
+.sidebar-scroll::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.035);
+  border-radius: 999px;
+}
+
+.sidebar-scroll::-webkit-scrollbar-thumb {
+  background: linear-gradient(
+    180deg,
+    rgba(99, 220, 255, 0.55),
+    rgba(178, 126, 255, 0.55)
+  );
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.sidebar-scroll::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(
+    180deg,
+    rgba(99, 220, 255, 0.75),
+    rgba(178, 126, 255, 0.75)
+  );
+}
+
+.sidebar-top {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding-right: 6px;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(126, 170, 255, 0.45) rgba(255, 255, 255, 0.04);
+}
+
+.sidebar-bottom {
+  flex: 0 0 auto;
+  min-height: 0;
+}
+
+.sidebar-section-card {
+  min-height: 0;
+}
+
+.sidebar-section-body {
+  min-height: 0;
 }
 
 .sidebar-card {
@@ -213,4 +289,39 @@ body.post-hide-sidebar .post-layout {
     rgba(15, 25, 52, 0.72);
   border-color: rgba(121, 181, 255, 0.22);
   transform: translateY(-1px);
+}
+
+
+
+
+
+
+
+
+
+.sidebar::-webkit-scrollbar {
+  width: 8px;
+}
+
+.sidebar::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.035);
+  border-radius: 999px;
+}
+
+.sidebar::-webkit-scrollbar-thumb {
+  background: linear-gradient(
+    180deg,
+    rgba(99, 220, 255, 0.55),
+    rgba(178, 126, 255, 0.55)
+  );
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.sidebar::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(
+    180deg,
+    rgba(99, 220, 255, 0.75),
+    rgba(178, 126, 255, 0.75)
+  );
 }
