@@ -154,3 +154,31 @@
     font-size: 1.12rem;
   }
 }
+
+
+.post-card-link,
+.post-card,
+.post-title {
+  min-width: 0;
+}
+
+.post-card {
+  overflow: hidden;
+}
+
+.post-title {
+  width: 100%;
+  max-width: 100%;
+  display: -webkit-box;
+  display: box;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: normal;
+  line-height: 1.32;
+
+  -webkit-box-orient: vertical;
+  box-orient: vertical;
+
+  line-clamp: 2;
+  -webkit-line-clamp: 2;
+}

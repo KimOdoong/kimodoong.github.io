@@ -18,6 +18,8 @@ body.post-hide-sidebar .site-wrap {
 
 .post-view-header {
   margin-bottom: 22px;
+  padding-bottom: 18px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.50);
 }
 
 .post-view-meta {
@@ -442,21 +444,64 @@ body.post-hide-sidebar .site-wrap {
 }
 
 
-/* .post-sidebar-toc-card {
-  display: flex;
-  flex-direction: column;
-  min-height: 0;
-  max-height: 32vh;
-  overflow: hidden;
+@media (max-width: 1100px) {
+  .page-post .sidebar,
+  .page-post .sidebar-scroll,
+  .page-post .post-sidebar-toc-card,
+  .page-post .post-sidebar-toc-card .toc-list {
+    position: static !important;
+    top: auto !important;
+    max-height: none !important;
+    height: auto !important;
+    overflow: visible !important;
+    overflow-y: visible !important;
+    overflow-x: visible !important;
+    overscroll-behavior: auto !important;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+
+  .page-post .sidebar::-webkit-scrollbar,
+  .page-post .sidebar-scroll::-webkit-scrollbar,
+  .page-post .post-sidebar-toc-card::-webkit-scrollbar,
+  .page-post .post-sidebar-toc-card .toc-list::-webkit-scrollbar {
+    display: none;
+  }
 }
 
-.post-sidebar-toc-card .toc-list {
-  min-height: 0;
-  overflow-y: auto;
-  overflow-x: hidden;
-  padding-right: 6px;
-  scrollbar-width: thin;
-  scrollbar-color: rgba(126, 170, 255, 0.45) rgba(255, 255, 255, 0.04);
-} */
+
+.markdown-body,
+.markdown-body p,
+.markdown-body li,
+.markdown-body blockquote,
+.markdown-body h1,
+.markdown-body h2,
+.markdown-body h3,
+.toc-item {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.markdown-body ul,
+.markdown-body ol {
+  min-width: 0;
+}
+
+.post-view {
+  min-width: 0;
+}
 
 
+.post-view-title {
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  line-height: 1.2;
+  min-width: 0;
+}
+
+.post-view-header,
+.post-view,
+.main {
+  min-width: 0;
+}

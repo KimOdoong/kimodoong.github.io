@@ -126,8 +126,7 @@ async function initPostPage() {
 
     document.title = `${post.title} - ${config.siteTitle}`;
 
-    titleElement.textContent = post.title;
-    metaElement.innerHTML = `<span>${escapeHtml(post.date)}</span>`;
+titleElement.innerHTML = `<span class="gradient-title-text">${escapeHtml(post.title)}</span>`;    metaElement.innerHTML = `<span>${escapeHtml(post.date)}</span>`;
 
     categoryElement.innerHTML = `
       <a class="mini-chip mini-chip-link" href="${buildFilterLink("category", post.category)}">${escapeHtml(post.category)}</a>

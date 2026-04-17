@@ -513,7 +513,7 @@ function renderSidebar(config, posts, options = {}) {
             onerror="this.remove(); this.parentNode.innerHTML='<div class=&quot;profile-fallback&quot;>K</div>';"
           >
         </div>
-        <div class="profile-name">${escapeHtml(config.profile.name)}</div>
+        <div class="profile-name"><span class="gradient-title-text">${escapeHtml(config.profile.name)}</span></div>
         ${config.profile.showDescription ? `<p class="profile-desc">${escapeHtml(config.profile.description)}</p>` : ""}
       </a>
     </div>

@@ -107,7 +107,7 @@ function renderPostList(posts, currentPageValue, postsPerPage) {
   postList.innerHTML = visiblePosts.map(post => `
     <a class="post-card-link" href="${buildPostUrl(post.relativePath)}">
       <article class="post-card">
-        <h2 class="post-title">${escapeHtml(post.title)}</h2>
+        <h2 class="post-title"><span class="gradient-title-text">${escapeHtml(post.title)}</span></h2>
 
         <p class="post-excerpt">${escapeHtml(post.excerpt)}</p>
 
