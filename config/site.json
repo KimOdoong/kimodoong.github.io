@@ -21,7 +21,7 @@
   "links": [
     {
       "label": "GitHub",
-      "url": "https://github.com/rlagywnd",
+      "url": "https://github.com/KimOdoong",
       "iconPath": "./assets/icons/github.svg"
     },
     {
@@ -35,7 +35,7 @@
       "iconPath": "./assets/icons/email.svg"
     }
   ],
-  "postsPerPage": 5,
+  "postsPerPage": 10,
   "postPage": {
     "hideSidebar": false
   },
@@ -47,7 +47,7 @@
     "items": [
       {
         "label": "GitHub",
-        "url": "https://github.com/rlagywnd"
+        "url": "https://github.com/KimOdoong"
       },
       {
         "label": "이메일",

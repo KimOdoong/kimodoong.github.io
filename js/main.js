@@ -66,6 +66,17 @@ async function initHomePage() {
   document.getElementById("heroSubtitle").textContent = profileData.hero.subtitle;
   document.getElementById("heroDescription").textContent = profileData.hero.description;
 
+
+  // const heroProfileImage = document.getElementById("heroProfileImage");
+  // heroProfileImage.innerHTML = `
+  //   <img
+  //     class="protected-image"
+  //     src="http://mazassumnida.wtf/api/v2/generate_badge?boj=rlagywnd0302"
+  //     alt="백준 티어 배지"
+  //     onerror="this.remove(); this.parentNode.innerHTML='<div class=&quot;profile-fallback&quot;>K</div>';"
+  //   >
+  // `;
+ 
   const heroProfileImage = document.getElementById("heroProfileImage");
     heroProfileImage.innerHTML = `
     <img

@@ -137,7 +137,9 @@ async function initPostPage() {
       .map(tag => `<a class="mini-chip mini-chip-link" href="${buildFilterLink("tag", tag)}">${escapeHtml(tag)}</a>`)
       .join("");
 
-    contentElement.innerHTML = marked.parse(post.content);
+    
+    contentElement.innerHTML = MarkdownShortcodes.render(post.content, marked.parse);
+    MarkdownShortcodes.initFoldSummaries(contentElement);
 
     const tocHtml = buildSidebarTableOfContents(contentElement);
     
@@ -245,3 +247,7 @@ function bindActiveSidebarToc(contentElement) {
 }
 
 initPostPage();
+
+
+
+

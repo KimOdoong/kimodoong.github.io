@@ -978,3 +978,6 @@ function initProtectedImages() {
     shield.addEventListener("selectstart", block);
   });
 }
+
+
+
