@@ -256,3 +256,21 @@ body.post-hide-sidebar .sidebar {
     display: none;
   }
 }
+
+@media (max-width: 1100px) {
+  .sidebar {
+    max-height: none !important;
+    overflow: visible !important;
+  }
+
+  .sidebar-scroll,
+  .sidebar-top {
+    max-height: none !important;
+    overflow: visible !important;
+    overflow-y: visible !important;
+    overflow-x: visible !important;
+    overscroll-behavior: auto !important;
+    overscroll-behavior-y: auto !important;
+    padding-right: 0 !important;
+  }
+}
