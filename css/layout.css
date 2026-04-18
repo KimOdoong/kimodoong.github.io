@@ -274,3 +274,17 @@ body.post-hide-sidebar .sidebar {
     padding-right: 0 !important;
   }
 }
+@media (max-width: 1100px) {
+  .sidebar {
+    max-height: none !important;
+    overflow: visible !important;
+    position: static !important;
+  }
+
+  .sidebar-scroll {
+    overflow: visible !important;
+    overflow-y: visible !important;
+    overscroll-behavior-y: auto !important;
+    padding-right: 0 !important;
+  }
+}
