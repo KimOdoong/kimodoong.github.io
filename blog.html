@@ -5,7 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Blog</title>
   <link id="dynamicFavicon" rel="icon" type="image/png" href="" />
-  <link rel="stylesheet" href="./css/main.css" />
+  <link rel="stylesheet" href="./css/base.css" />
+  <link rel="stylesheet" href="./css/components.css" />
+  <link rel="stylesheet" href="./css/layout.css" />
+  <link rel="stylesheet" href="./css/blog.css" />
 </head>
 <body>
   <div class="stars" id="stars"></div>
@@ -13,7 +16,7 @@
 
   <header class="topbar">
     <div class="topbar-inner">
-      <a  class="topbar-brand" href="./index.html" id="topbarBrand">김오둥</a>
+      <a class="topbar-brand" href="./index.html" id="topbarBrand">김오둥</a>
       <nav class="topbar-nav">
         <a href="./index.html" class="topbar-link">Home</a>
         <a href="./blog.html" class="topbar-link active">Blog</a>
@@ -28,7 +31,6 @@
       <section class="main-header">
         <div class="main-header-top">
           <h1 class="page-title" id="pageTitle">블로그 글 목록</h1>
-
           <div class="search-box">
             <span class="search-icon">⌕</span>
             <input
@@ -39,12 +41,10 @@
             />
           </div>
         </div>
-
         <div id="activeFilterBar" class="active-filter-bar hidden"></div>
       </section>
 
       <section id="postList" class="post-list"></section>
-
       <section class="pagination-wrap">
         <div id="pagination" class="pagination-bar"></div>
       </section>
@@ -53,8 +53,7 @@
 
   <footer class="footer" id="footer"></footer>
 
-  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-  <script src="./js/utils.js"></script>
-  <script src="./js/app.js"></script>
+  <script src="./js/utils.js" defer></script>
+  <script src="./js/app.js" defer></script>
 </body>
 </html>

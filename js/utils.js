@@ -1,17 +1,38 @@
-async function fetchJson(path) {
-  const response = await fetch(path);
-  if (!response.ok) {
-    throw new Error(`JSON 로드 실패: ${path}`);
+const __jsonCache = new Map();
+const __textCache = new Map();
+let __allPostsPromise = null;
+let __protectedImageBlockHandler = null;
+
+function __fetchCached(path, parser, cache) {
+  if (cache.has(path)) {
+    return cache.get(path);
   }
-  return response.json();
+
+  const promise = fetch(path).then((response) => {
+    if (!response.ok) {
+      throw new Error(`로드 실패: ${path}`);
+    }
+    return parser(response);
+  });
+
+  cache.set(path, promise);
+  return promise;
+}
+
+async function fetchJson(path) {
+  return __fetchCached(
+    path,
+    (response) => response.json(),
+    __jsonCache
+  );
 }
 
 async function fetchText(path) {
-  const response = await fetch(path);
-  if (!response.ok) {
-    throw new Error(`텍스트 로드 실패: ${path}`);
-  }
-  return response.text();
+  return __fetchCached(
+    path,
+    (response) => response.text(),
+    __textCache
+  );
 }
 
 function escapeHtml(value) {
@@ -60,6 +81,10 @@ function buildFilterLink(type, value) {
   return url.pathname + url.search;
 }
 
+function normalizeRelativePostPath(rawPath) {
+  return decodeURIComponent(String(rawPath || "")).replace(/^\.?\/?posts\//, "");
+}
+
 function parseJsonFrontMatter(markdownText) {
   const normalized = markdownText.replace(/\r\n/g, "\n");
   const separator = "\n---\n";
@@ -75,7 +100,7 @@ function parseJsonFrontMatter(markdownText) {
   let meta;
   try {
     meta = JSON.parse(jsonPart);
-  } catch (error) {
+  } catch {
     throw new Error("JSON front matter 파싱 실패");
   }
 
@@ -105,266 +130,82 @@ function createExcerptFromMarkdown(markdownText) {
   return plain.length > 140 ? `${plain.slice(0, 140)}...` : plain;
 }
 
-async function loadAllPosts() {
-  const manifest = await fetchJson("./posts/index.json");
+function __buildPostRecord(relativePath, parsed) {
+  const title = parsed.meta.title;
+  const excerpt = parsed.meta.excerpt || createExcerptFromMarkdown(parsed.body);
+  const category = parsed.meta.category;
+  const tags = parsed.meta.tags;
 
-  const posts = await Promise.all(
-    manifest.posts.map(async (relativePath) => {
-      const markdownText = await fetchText(resolvePostPath(relativePath));
-      const parsed = parseJsonFrontMatter(markdownText);
-
-      return {
-        relativePath,
-        title: parsed.meta.title,
-        date: parsed.meta.date,
-        category: parsed.meta.category,
-        tags: parsed.meta.tags,
-        excerpt: parsed.meta.excerpt || createExcerptFromMarkdown(parsed.body),
-        content: parsed.body
-      };
-    })
-  );
-
-  posts.sort((a, b) => {
-    const aTime = new Date(a.date).getTime();
-    const bTime = new Date(b.date).getTime();
-    return bTime - aTime;
-  });
-
-  return posts;
+  return {
+    relativePath,
+    title,
+    date: parsed.meta.date,
+    category,
+    tags,
+    excerpt,
+    content: parsed.body,
+    searchText: `${title} ${excerpt} ${category} ${tags.join(" ")}`.toLowerCase()
+  };
 }
 
-function uniqueCategories(posts) {
-  return [...new Set(posts.map(post => post.category).filter(Boolean))].sort((a, b) => a.localeCompare(b, "ko"));
+async function loadPostByRelativePath(relativePath) {
+  const normalizedPath = normalizeRelativePostPath(relativePath);
+  const markdownText = await fetchText(resolvePostPath(normalizedPath));
+  return __buildPostRecord(normalizedPath, parseJsonFrontMatter(markdownText));
 }
 
-function uniqueTags(posts) {
-  return [...new Set(posts.flatMap(post => post.tags || []).filter(Boolean))].sort((a, b) => a.localeCompare(b, "ko"));
-}
+async function __mapWithConcurrency(items, limit, mapper) {
+  const results = new Array(items.length);
+  let nextIndex = 0;
 
-function applyTheme(config) {
-  const root = document.documentElement;
-  const theme = config.theme;
-
-  root.style.setProperty("--bg-top", theme.bgTop);
-  root.style.setProperty("--bg-mid", theme.bgMid);
-  root.style.setProperty("--bg-bottom", theme.bgBottom);
-  root.style.setProperty("--accent-1", theme.accent1);
-  root.style.setProperty("--accent-2", theme.accent2);
-  root.style.setProperty("--accent-3", theme.accent3);
-  root.style.setProperty("--accent-4", theme.accent4);
-  root.style.setProperty("--text-main", theme.textMain);
-  root.style.setProperty("--text-soft", theme.textSoft);
-  root.style.setProperty("--text-dim", theme.textDim);
-  root.style.setProperty("--border", theme.border);
-  root.style.setProperty("--panel", theme.panel);
-
-  document.title = config.siteTitle;
-}
-
-function renderFooter(config) {
-  const footer = document.getElementById("footer");
-  if (!footer) return;
-
-  footer.innerHTML = `
-    <div class="footer-inner">
-      <div class="footer-follow">
-        <span>${escapeHtml(config.footer.followLabel)}</span>
-        ${config.footer.items.map(item => `
-          <a href="${escapeHtml(item.url)}" target="_blank" rel="noopener noreferrer">
-            ${escapeHtml(item.label)}
-          </a>
-        `).join("")}
-      </div>
-      <div class="footer-copy">${escapeHtml(config.footer.copyright)}</div>
-    </div>
-  `;
-}
-
-function createStars(count = 260) {
-  const stars = document.getElementById("stars");
-  if (!stars) return;
-
-  stars.innerHTML = "";
-
-  for (let i = 0; i < count; i++) {
-    const star = document.createElement("span");
-    star.className = "star";
-
-    const size = Math.random() * 2.8 + 0.8;
-    star.style.width = `${size}px`;
-    star.style.height = `${size}px`;
-    star.style.left = `${Math.random() * 100}%`;
-    star.style.top = `${Math.random() * 100}%`;
-    star.style.animationDuration = `${1.8 + Math.random() * 4.5}s`;
-    star.style.animationDelay = `${Math.random() * 4}s`;
-
-    stars.appendChild(star);
-  }
-}
-
-function renderLimitedList(items, type, limit) {
-  const visibleItems = items.slice(0, limit);
-  const hasMore = items.length > limit;
-
-  const chips = visibleItems.map(item => `
-    <a class="chip chip-link" href="${buildFilterLink(type, item)}">${escapeHtml(item)}</a>
-  `).join("");
-
-  const moreButton = hasMore
-    ? `<a class="more-link" href="${buildAllPageUrl(type)}">더보기</a>`
-    : "";
-
-  return `
-    <div class="chip-list">
-      ${chips}
-    </div>
-    ${moreButton}
-  `;
-}
-
-async function fetchJson(path) {
-  const response = await fetch(path);
-  if (!response.ok) {
-    throw new Error(`JSON 로드 실패: ${path}`);
-  }
-  return response.json();
-}
-
-async function fetchText(path) {
-  const response = await fetch(path);
-  if (!response.ok) {
-    throw new Error(`텍스트 로드 실패: ${path}`);
-  }
-  return response.text();
-}
-
-function escapeHtml(value) {
-  return String(value)
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#39;");
-}
-
-function getQueryParam(name) {
-  const url = new URL(window.location.href);
-  return url.searchParams.get(name);
-}
-
-function updateQueryParams(updates) {
-  const url = new URL(window.location.href);
-
-  Object.entries(updates).forEach(([key, value]) => {
-    if (value === null || value === undefined || value === "") {
-      url.searchParams.delete(key);
-    } else {
-      url.searchParams.set(key, value);
+  async function worker() {
+    while (nextIndex < items.length) {
+      const currentIndex = nextIndex;
+      nextIndex += 1;
+      results[currentIndex] = await mapper(items[currentIndex], currentIndex);
     }
-  });
-
-  return url;
-}
-
-function buildPostUrl(relativePath) {
-  return `./post.html?path=${encodeURIComponent(relativePath)}`;
-}
-
-function resolvePostPath(relativePath) {
-  return `./posts/${relativePath}`;
-}
-
-function buildAllPageUrl(type) {
-  return `./all.html?type=${encodeURIComponent(type)}`;
-}
-
-function buildFilterLink(type, value) {
-  const url = new URL("./blog.html", window.location.href);
-  url.searchParams.set(type, value);
-  return url.pathname + url.search;
-}
-
-function parseJsonFrontMatter(markdownText) {
-  const normalized = markdownText.replace(/\r\n/g, "\n");
-  const separator = "\n---\n";
-  const separatorIndex = normalized.indexOf(separator);
-
-  if (separatorIndex === -1) {
-    throw new Error("JSON front matter 구분선(---)을 찾을 수 없습니다.");
   }
 
-  const jsonPart = normalized.slice(0, separatorIndex).trim();
-  const body = normalized.slice(separatorIndex + separator.length).trim();
-
-  let meta;
-  try {
-    meta = JSON.parse(jsonPart);
-  } catch (error) {
-    throw new Error("JSON front matter 파싱 실패");
-  }
-
-  return {
-    meta: {
-      title: meta.title ?? "제목 없음",
-      date: meta.date ?? "",
-      category: meta.category ?? "",
-      tags: Array.isArray(meta.tags) ? meta.tags : [],
-      excerpt: meta.excerpt ?? ""
-    },
-    body
-  };
-}
-
-function createExcerptFromMarkdown(markdownText) {
-  const plain = markdownText
-    .replace(/^#{1,6}\s+/gm, "")
-    .replace(/```[\s\S]*?```/g, "")
-    .replace(/`([^`]+)`/g, "$1")
-    .replace(/\!\[.*?\]\(.*?\)/g, "")
-    .replace(/\[(.*?)\]\(.*?\)/g, "$1")
-    .replace(/[*_>~-]/g, "")
-    .replace(/\n+/g, " ")
-    .trim();
-
-  return plain.length > 140 ? `${plain.slice(0, 140)}...` : plain;
+  const workerCount = Math.min(limit, items.length);
+  await Promise.all(Array.from({ length: workerCount }, worker));
+  return results;
 }
 
 async function loadAllPosts() {
-  const manifest = await fetchJson("./posts/index.json");
+  if (__allPostsPromise) {
+    return __allPostsPromise;
+  }
 
-  const posts = await Promise.all(
-    manifest.posts.map(async (relativePath) => {
-      const markdownText = await fetchText(resolvePostPath(relativePath));
-      const parsed = parseJsonFrontMatter(markdownText);
+  __allPostsPromise = (async () => {
+    const manifest = await fetchJson("./posts/index.json");
+    const paths = Array.isArray(manifest?.posts) ? manifest.posts : [];
 
-      return {
-        relativePath,
-        title: parsed.meta.title,
-        date: parsed.meta.date,
-        category: parsed.meta.category,
-        tags: parsed.meta.tags,
-        excerpt: parsed.meta.excerpt || createExcerptFromMarkdown(parsed.body),
-        content: parsed.body
-      };
-    })
-  );
+    const posts = await __mapWithConcurrency(paths, 6, async (relativePath) => {
+      const normalizedPath = normalizeRelativePostPath(relativePath);
+      const markdownText = await fetchText(resolvePostPath(normalizedPath));
+      return __buildPostRecord(normalizedPath, parseJsonFrontMatter(markdownText));
+    });
 
-  posts.sort((a, b) => {
-    const aTime = new Date(a.date).getTime();
-    const bTime = new Date(b.date).getTime();
-    return bTime - aTime;
-  });
+    posts.sort((a, b) => {
+      const aTime = new Date(a.date).getTime();
+      const bTime = new Date(b.date).getTime();
+      return bTime - aTime;
+    });
 
-  return posts;
+    return posts;
+  })();
+
+  return __allPostsPromise;
 }
 
 function uniqueCategories(posts) {
-  return [...new Set(posts.map(post => post.category).filter(Boolean))].sort((a, b) => a.localeCompare(b, "ko"));
+  return [...new Set(posts.map((post) => post.category).filter(Boolean))]
+    .sort((a, b) => a.localeCompare(b, "ko"));
 }
 
 function uniqueTags(posts) {
-  return [...new Set(posts.flatMap(post => post.tags || []).filter(Boolean))].sort((a, b) => a.localeCompare(b, "ko"));
+  return [...new Set(posts.flatMap((post) => post.tags || []).filter(Boolean))]
+    .sort((a, b) => a.localeCompare(b, "ko"));
 }
 
 function applyTheme(config) {
@@ -395,7 +236,7 @@ function renderFooter(config) {
     <div class="footer-inner">
       <div class="footer-follow">
         <span>${escapeHtml(config.footer.followLabel)}</span>
-        ${config.footer.items.map(item => `
+        ${config.footer.items.map((item) => `
           <a href="${escapeHtml(item.url)}" target="_blank" rel="noopener noreferrer">
             ${escapeHtml(item.label)}
           </a>
@@ -406,33 +247,66 @@ function renderFooter(config) {
   `;
 }
 
+function getOptimizedStarCount(configuredCount = 260) {
+  const connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+  const saveData = Boolean(connection?.saveData);
+  const reducedMotion = window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches;
+  const coarsePointer = window.matchMedia?.("(pointer: coarse)")?.matches;
+  const narrowViewport = window.innerWidth <= 700;
+  const deviceMemory = navigator.deviceMemory || 8;
+  const cpuThreads = navigator.hardwareConcurrency || 8;
+
+  if (saveData || reducedMotion) {
+    return 0;
+  }
+
+  if (deviceMemory <= 2 || cpuThreads <= 2) {
+    return Math.min(configuredCount, 18);
+  }
+
+  if (narrowViewport || coarsePointer || deviceMemory <= 4 || cpuThreads <= 4) {
+    return Math.min(configuredCount, 40);
+  }
+
+  return Math.min(configuredCount, 120);
+}
+
 function createStars(count = 260) {
   const stars = document.getElementById("stars");
   if (!stars) return;
 
-  stars.innerHTML = "";
+  const optimizedCount = getOptimizedStarCount(count);
+  stars.replaceChildren();
 
-  for (let i = 0; i < count; i++) {
+  if (optimizedCount <= 0) {
+    return;
+  }
+
+  const fragment = document.createDocumentFragment();
+
+  for (let i = 0; i < optimizedCount; i += 1) {
     const star = document.createElement("span");
-    star.className = "star";
+    const size = Math.random() * 2 + 0.7;
 
-    const size = Math.random() * 2.8 + 0.8;
+    star.className = "star";
     star.style.width = `${size}px`;
     star.style.height = `${size}px`;
     star.style.left = `${Math.random() * 100}%`;
     star.style.top = `${Math.random() * 100}%`;
-    star.style.animationDuration = `${1.8 + Math.random() * 4.5}s`;
-    star.style.animationDelay = `${Math.random() * 4}s`;
+    star.style.animationDuration = `${2.6 + Math.random() * 3.8}s`;
+    star.style.animationDelay = `${Math.random() * 3.2}s`;
 
-    stars.appendChild(star);
+    fragment.appendChild(star);
   }
+
+  stars.appendChild(fragment);
 }
 
 function renderLimitedList(items, type, limit) {
   const visibleItems = items.slice(0, limit);
   const hasMore = items.length > limit;
 
-  const chips = visibleItems.map(item => `
+  const chips = visibleItems.map((item) => `
     <a class="chip chip-link" href="${buildFilterLink(type, item)}">${escapeHtml(item)}</a>
   `).join("");
 
@@ -448,12 +322,9 @@ function renderLimitedList(items, type, limit) {
   `;
 }
 
-function renderSidebar(config, posts, options = {}) {
+function renderSidebar(config, posts = [], options = {}) {
   const sidebar = document.getElementById("sidebar");
   if (!sidebar) return;
-
-  const tags = uniqueTags(posts);
-  const categories = uniqueCategories(posts);
 
   const showLinks = options.showLinks ?? config.sidebar.showLinks;
   const showTags = options.showTags ?? config.sidebar.showTags;
@@ -461,18 +332,23 @@ function renderSidebar(config, posts, options = {}) {
   const extraHtml = options.extraHtml ?? "";
   const profileHref = options.profileHref ?? "./blog.html";
 
+  const tags = showTags ? uniqueTags(posts) : [];
+  const categories = showCategories ? uniqueCategories(posts) : [];
+
   const linksHtml = showLinks
     ? `
       <section class="sidebar-card">
         <h2 class="sidebar-section-title">링크</h2>
         <div class="link-list">
-          ${config.links.map(link => `
+          ${config.links.map((link) => `
             <a href="${escapeHtml(link.url)}" target="_blank" rel="noopener noreferrer" class="link-button">
               <span class="link-button-left">
                 <img
                   class="link-icon protected-image"
                   src="${escapeHtml(link.iconPath)}"
                   alt="${escapeHtml(link.label)}"
+                  loading="lazy"
+                  decoding="async"
                 >
                 <span class="link-label">${escapeHtml(link.label)}</span>
               </span>
@@ -510,6 +386,8 @@ function renderSidebar(config, posts, options = {}) {
             class="protected-image"
             src="${escapeHtml(config.profile.imagePath)}"
             alt="프로필 사진"
+            loading="lazy"
+            decoding="async"
             onerror="this.remove(); this.parentNode.innerHTML='<div class=&quot;profile-fallback&quot;>K</div>';"
           >
         </div>
@@ -527,7 +405,6 @@ function renderSidebar(config, posts, options = {}) {
   `;
 }
 
-
 function slugifyHeading(text, fallbackIndex) {
   const slug = text
     .toLowerCase()
@@ -538,87 +415,11 @@ function slugifyHeading(text, fallbackIndex) {
   return slug || `heading-${fallbackIndex}`;
 }
 
-function buildTableOfContents(contentElement, tocElement) {
-  const headings = Array.from(contentElement.querySelectorAll("h1, h2, h3"));
-
-  if (headings.length === 0) {
-    tocElement.innerHTML = "";
-    return;
-  }
-
-  const usedIds = new Set();
-
-  const itemsHtml = headings.map((heading, index) => {
-    let id = heading.id || slugifyHeading(heading.textContent, index);
-
-    while (usedIds.has(id)) {
-      id = `${id}-${index}`;
-    }
-
-    usedIds.add(id);
-    heading.id = id;
-
-    const level = Number(heading.tagName.replace("H", ""));
-
-    return `
-      <a class="toc-item level-${level}" data-target-id="${escapeHtml(id)}" href="#${escapeHtml(id)}">
-        ${escapeHtml(heading.textContent)}
-      </a>
-    `;
-  }).join("");
-
-  tocElement.innerHTML = `
-    <div class="toc-card">
-      <h2 class="toc-title">목차</h2>
-      <div class="toc-list">
-        ${itemsHtml}
-      </div>
-    </div>
-  `;
-}
-
-function bindActiveToc(contentElement, tocElement) {
-  const headings = Array.from(contentElement.querySelectorAll("h1, h2, h3"));
-  const tocLinks = Array.from(tocElement.querySelectorAll(".toc-item"));
-
-  if (headings.length === 0 || tocLinks.length === 0) {
-    return;
-  }
-
-  const linkMap = new Map();
-  tocLinks.forEach(link => {
-    linkMap.set(link.dataset.targetId, link);
-  });
-
-  function updateActiveToc() {
-    let currentHeading = headings[0];
-
-    for (const heading of headings) {
-      const rect = heading.getBoundingClientRect();
-      if (rect.top <= 140) {
-        currentHeading = heading;
-      } else {
-        break;
-      }
-    }
-
-    tocLinks.forEach(link => link.classList.remove("active"));
-
-    const activeLink = linkMap.get(currentHeading.id);
-    if (activeLink) {
-      activeLink.classList.add("active");
-    }
-  }
-
-  updateActiveToc();
-  window.addEventListener("scroll", updateActiveToc, { passive: true });
-}
-
 function createPaginationItems(totalPages, currentPage) {
   const items = [];
 
   if (totalPages <= 7) {
-    for (let i = 1; i <= totalPages; i++) {
+    for (let i = 1; i <= totalPages; i += 1) {
       items.push(i);
     }
     return items;
@@ -644,7 +445,7 @@ function renderTagLinks(tags, maxVisible = 5) {
   const visible = tags.slice(0, maxVisible);
   const hiddenCount = Math.max(0, tags.length - maxVisible);
 
-  let html = visible.map(tag => `
+  let html = visible.map((tag) => `
     <a class="mini-chip mini-chip-link" href="${buildFilterLink("tag", tag)}">${escapeHtml(tag)}</a>
   `).join("");
 
@@ -657,9 +458,7 @@ function renderTagLinks(tags, maxVisible = 5) {
 
 function renderTopbarBrand(config) {
   const brandElement = document.getElementById("topbarBrand");
-  if (!brandElement) {
-    return;
-  }
+  if (!brandElement) return;
 
   const fallbackTitle =
     config?.branding?.title?.trim() ||
@@ -670,9 +469,7 @@ function renderTopbarBrand(config) {
   const logoAlt = config?.branding?.logoAlt?.trim() || fallbackTitle;
 
   if (!logoPath) {
-    brandElement.innerHTML = `
-      <span class="topbar-brand-text">${escapeHtml(fallbackTitle)}</span>
-    `;
+    brandElement.innerHTML = `<span class="topbar-brand-text">${escapeHtml(fallbackTitle)}</span>`;
     return;
   }
 
@@ -682,50 +479,47 @@ function renderTopbarBrand(config) {
         class="topbar-brand-logo protected-image"
         src="${escapeHtml(logoPath)}"
         alt="${escapeHtml(logoAlt)}"
+        decoding="async"
       >
     </span>
     <span class="topbar-brand-text">${escapeHtml(fallbackTitle)}</span>
   `;
 
   const img = brandElement.querySelector(".topbar-brand-logo");
-  if (!img) {
-    brandElement.innerHTML = `
-      <span class="topbar-brand-text">${escapeHtml(fallbackTitle)}</span>
-    `;
-    return;
-  }
+  if (!img) return;
 
   img.addEventListener("error", () => {
-    brandElement.innerHTML = `
-      <span class="topbar-brand-text">${escapeHtml(fallbackTitle)}</span>
-    `;
-  });
+    brandElement.innerHTML = `<span class="topbar-brand-text">${escapeHtml(fallbackTitle)}</span>`;
+  }, { once: true });
 }
+
 function renderFavicon(config) {
   const faviconElement = document.getElementById("dynamicFavicon");
-  if (!faviconElement) {
-    return;
-  }
+  if (!faviconElement) return;
 
   const logoPath = config?.branding?.logoPath?.trim();
   const fallbackPath = config?.profile?.imagePath?.trim();
-
   const iconPath = logoPath || fallbackPath;
-  if (!iconPath) {
-    return;
-  }
 
-  faviconElement.setAttribute("href", `${iconPath}?v=${Date.now()}`);
+  if (!iconPath) return;
+  faviconElement.setAttribute("href", iconPath);
 }
 
-
 function initProtectedImages() {
-  const images = document.querySelectorAll("img.protected-image");
+  const images = document.querySelectorAll("img.protected-image:not([data-protected='true'])");
+  if (images.length === 0) return;
+
+  if (!__protectedImageBlockHandler) {
+    __protectedImageBlockHandler = (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+      return false;
+    };
+  }
 
   images.forEach((img) => {
-    if (img.closest(".protected-image-wrap")) {
-      return;
-    }
+    const parent = img.parentNode;
+    if (!parent) return;
 
     const wrapper = document.createElement("span");
     wrapper.className = "protected-image-wrap";
@@ -733,256 +527,27 @@ function initProtectedImages() {
     const shield = document.createElement("span");
     shield.className = "protected-image-shield";
 
-    img.parentNode.insertBefore(wrapper, img);
+    parent.insertBefore(wrapper, img);
     wrapper.appendChild(img);
     wrapper.appendChild(shield);
 
+    img.dataset.protected = "true";
     img.setAttribute("draggable", "false");
 
-    const block = (event) => {
-      event.preventDefault();
-      event.stopPropagation();
-      return false;
-    };
-
-    img.addEventListener("dragstart", block);
-    img.addEventListener("contextmenu", block);
-    img.addEventListener("selectstart", block);
-
-    shield.addEventListener("contextmenu", block);
-    shield.addEventListener("dragstart", block);
-    shield.addEventListener("mousedown", block);
-    shield.addEventListener("selectstart", block);
+    wrapper.addEventListener("contextmenu", __protectedImageBlockHandler);
+    wrapper.addEventListener("dragstart", __protectedImageBlockHandler);
+    wrapper.addEventListener("mousedown", __protectedImageBlockHandler);
+    wrapper.addEventListener("selectstart", __protectedImageBlockHandler);
   });
 }
 
-function slugifyHeading(text, fallbackIndex) {
-  const slug = text
-    .toLowerCase()
-    .trim()
-    .replace(/[^\w\s가-힣-]/g, "")
-    .replace(/\s+/g, "-");
+function debounce(fn, wait = 120) {
+  let timeoutId = 0;
 
-  return slug || `heading-${fallbackIndex}`;
+  return function debounced(...args) {
+    window.clearTimeout(timeoutId);
+    timeoutId = window.setTimeout(() => {
+      fn.apply(this, args);
+    }, wait);
+  };
 }
-
-function buildTableOfContents(contentElement, tocElement) {
-  const headings = Array.from(contentElement.querySelectorAll("h1, h2, h3"));
-
-  if (headings.length === 0) {
-    tocElement.innerHTML = "";
-    return;
-  }
-
-  const usedIds = new Set();
-
-  const itemsHtml = headings.map((heading, index) => {
-    let id = heading.id || slugifyHeading(heading.textContent, index);
-
-    while (usedIds.has(id)) {
-      id = `${id}-${index}`;
-    }
-
-    usedIds.add(id);
-    heading.id = id;
-
-    const level = Number(heading.tagName.replace("H", ""));
-
-    return `
-      <a class="toc-item level-${level}" data-target-id="${escapeHtml(id)}" href="#${escapeHtml(id)}">
-        ${escapeHtml(heading.textContent)}
-      </a>
-    `;
-  }).join("");
-
-  tocElement.innerHTML = `
-    <div class="toc-card">
-      <h2 class="toc-title">목차</h2>
-      <div class="toc-list">
-        ${itemsHtml}
-      </div>
-    </div>
-  `;
-}
-
-function bindActiveToc(contentElement, tocElement) {
-  const headings = Array.from(contentElement.querySelectorAll("h1, h2, h3"));
-  const tocLinks = Array.from(tocElement.querySelectorAll(".toc-item"));
-
-  if (headings.length === 0 || tocLinks.length === 0) {
-    return;
-  }
-
-  const linkMap = new Map();
-  tocLinks.forEach(link => {
-    linkMap.set(link.dataset.targetId, link);
-  });
-
-  function updateActiveToc() {
-    let currentHeading = headings[0];
-
-    for (const heading of headings) {
-      const rect = heading.getBoundingClientRect();
-      if (rect.top <= 140) {
-        currentHeading = heading;
-      } else {
-        break;
-      }
-    }
-
-    tocLinks.forEach(link => link.classList.remove("active"));
-
-    const activeLink = linkMap.get(currentHeading.id);
-    if (activeLink) {
-      activeLink.classList.add("active");
-    }
-  }
-
-  updateActiveToc();
-  window.addEventListener("scroll", updateActiveToc, { passive: true });
-}
-
-function createPaginationItems(totalPages, currentPage) {
-  const items = [];
-
-  if (totalPages <= 7) {
-    for (let i = 1; i <= totalPages; i++) {
-      items.push(i);
-    }
-    return items;
-  }
-
-  items.push(1);
-
-  if (currentPage <= 4) {
-    items.push(2, 3, 4, 5, "ellipsis", totalPages);
-    return items;
-  }
-
-  if (currentPage >= totalPages - 3) {
-    items.push("ellipsis", totalPages - 4, totalPages - 3, totalPages - 2, totalPages - 1, totalPages);
-    return items;
-  }
-
-  items.push("ellipsis", currentPage - 1, currentPage, currentPage + 1, "ellipsis", totalPages);
-  return items;
-}
-
-function renderTagLinks(tags, maxVisible = 5) {
-  const visible = tags.slice(0, maxVisible);
-  const hiddenCount = Math.max(0, tags.length - maxVisible);
-
-  let html = visible.map(tag => `
-    <a class="mini-chip mini-chip-link" href="${buildFilterLink("tag", tag)}">${escapeHtml(tag)}</a>
-  `).join("");
-
-  if (hiddenCount > 0) {
-    html += `<span class="mini-chip mini-chip-muted">...</span>`;
-  }
-
-  return html;
-}
-
-function renderTopbarBrand(config) {
-  const brandElement = document.getElementById("topbarBrand");
-  if (!brandElement) {
-    return;
-  }
-
-  const fallbackTitle =
-    config?.branding?.title?.trim() ||
-    config?.profile?.name?.trim() ||
-    "김오둥";
-
-  const logoPath = config?.branding?.logoPath?.trim();
-  const logoAlt = config?.branding?.logoAlt?.trim() || fallbackTitle;
-
-  if (!logoPath) {
-    brandElement.innerHTML = `
-      <span class="topbar-brand-text">${escapeHtml(fallbackTitle)}</span>
-    `;
-    return;
-  }
-
-  brandElement.innerHTML = `
-    <span class="topbar-brand-logo-wrap">
-      <img
-        class="topbar-brand-logo protected-image"
-        src="${escapeHtml(logoPath)}"
-        alt="${escapeHtml(logoAlt)}"
-      >
-    </span>
-    <span class="topbar-brand-text">${escapeHtml(fallbackTitle)}</span>
-  `;
-
-  const img = brandElement.querySelector(".topbar-brand-logo");
-  if (!img) {
-    brandElement.innerHTML = `
-      <span class="topbar-brand-text">${escapeHtml(fallbackTitle)}</span>
-    `;
-    return;
-  }
-
-  img.addEventListener("error", () => {
-    brandElement.innerHTML = `
-      <span class="topbar-brand-text">${escapeHtml(fallbackTitle)}</span>
-    `;
-  });
-}
-function renderFavicon(config) {
-  const faviconElement = document.getElementById("dynamicFavicon");
-  if (!faviconElement) {
-    return;
-  }
-
-  const logoPath = config?.branding?.logoPath?.trim();
-  const fallbackPath = config?.profile?.imagePath?.trim();
-
-  const iconPath = logoPath || fallbackPath;
-  if (!iconPath) {
-    return;
-  }
-
-  faviconElement.setAttribute("href", `${iconPath}?v=${Date.now()}`);
-}
-
-
-function initProtectedImages() {
-  const images = document.querySelectorAll("img.protected-image");
-
-  images.forEach((img) => {
-    if (img.closest(".protected-image-wrap")) {
-      return;
-    }
-
-    const wrapper = document.createElement("span");
-    wrapper.className = "protected-image-wrap";
-
-    const shield = document.createElement("span");
-    shield.className = "protected-image-shield";
-
-    img.parentNode.insertBefore(wrapper, img);
-    wrapper.appendChild(img);
-    wrapper.appendChild(shield);
-
-    img.setAttribute("draggable", "false");
-
-    const block = (event) => {
-      event.preventDefault();
-      event.stopPropagation();
-      return false;
-    };
-
-    img.addEventListener("dragstart", block);
-    img.addEventListener("contextmenu", block);
-    img.addEventListener("selectstart", block);
-
-    shield.addEventListener("contextmenu", block);
-    shield.addEventListener("dragstart", block);
-    shield.addEventListener("mousedown", block);
-    shield.addEventListener("selectstart", block);
-  });
-}
-
-
-

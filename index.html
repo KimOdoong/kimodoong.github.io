@@ -5,7 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>김오둥</title>
   <link id="dynamicFavicon" rel="icon" type="image/png" href="" />
-  <link rel="stylesheet" href="./css/main.css" />
+  <link rel="stylesheet" href="./css/base.css" />
+  <link rel="stylesheet" href="./css/components.css" />
+  <link rel="stylesheet" href="./css/layout.css" />
+  <link rel="stylesheet" href="./css/home.css" />
+  <link rel="stylesheet" href="./css/home-classic-overrides.css" />
 </head>
 <body>
   <div class="stars" id="stars"></div>
@@ -13,7 +17,7 @@
 
   <header class="topbar">
     <div class="topbar-inner">
-      <a  class="topbar-brand" href="./index.html" id="topbarBrand">김오둥</a>
+      <a class="topbar-brand" href="./index.html" id="topbarBrand">김오둥</a>
       <nav class="topbar-nav">
         <a href="./index.html" class="topbar-link active">Home</a>
         <a href="./blog.html" class="topbar-link">Blog</a>
@@ -23,12 +27,6 @@
 
   <main class="simple-home">
     <section class="simple-home-hero">
-
-      <!-- <div class="home-hero-profile">
-        <div class="home-hero-badge" id="heroProfileImage"></div>
-        <div class="home-hero-profile-name" id="heroTitle">김오둥</div>
-      </div> -->
-
       <div class="home-hero-profile">
         <div class="home-hero-profile-image" id="heroProfileImage"></div>
         <div class="home-hero-profile-name" id="heroTitle">김오둥</div>
@@ -51,7 +49,7 @@
 
   <footer class="footer" id="footer"></footer>
 
-  <script src="./js/utils.js"></script>
-  <script src="./js/main.js"></script>
+  <script src="./js/utils.js" defer></script>
+  <script src="./js/main.js" defer></script>
 </body>
 </html>

@@ -8,23 +8,17 @@ let configData = null;
 function filterPosts(posts, keyword, tagFilter, categoryFilter) {
   const trimmed = keyword.trim().toLowerCase();
 
-  return posts.filter(post => {
-    const keywordMatch = !trimmed || (
-      post.title.toLowerCase().includes(trimmed) ||
-      post.excerpt.toLowerCase().includes(trimmed) ||
-      post.category.toLowerCase().includes(trimmed) ||
-      (post.tags || []).some(tag => tag.toLowerCase().includes(trimmed))
-    );
-
+  return posts.filter((post) => {
+    const keywordMatch = !trimmed || post.searchText.includes(trimmed);
     const tagMatch = !tagFilter || (post.tags || []).includes(tagFilter);
     const categoryMatch = !categoryFilter || post.category === categoryFilter;
-
     return keywordMatch && tagMatch && categoryMatch;
   });
 }
 
 function renderActiveFilterBar() {
   const bar = document.getElementById("activeFilterBar");
+  if (!bar) return;
 
   const items = [];
   if (currentTagFilter) {
@@ -44,7 +38,7 @@ function renderActiveFilterBar() {
   bar.innerHTML = `
     <div class="active-filter-label">현재 필터</div>
     <div class="active-filter-items">
-      ${items.map(item => `
+      ${items.map((item) => `
         <button class="active-filter-chip" data-clear-key="${item.key}">
           <span>${escapeHtml(item.type)}: ${escapeHtml(item.value)}</span>
           <span class="active-filter-remove">×</span>
@@ -54,16 +48,11 @@ function renderActiveFilterBar() {
     </div>
   `;
 
-  bar.querySelectorAll("[data-clear-key]").forEach(button => {
+  bar.querySelectorAll("[data-clear-key]").forEach((button) => {
     button.addEventListener("click", () => {
       const key = button.dataset.clearKey;
-
-      if (key === "tag") {
-        currentTagFilter = "";
-      }
-      if (key === "category") {
-        currentCategoryFilter = "";
-      }
+      if (key === "tag") currentTagFilter = "";
+      if (key === "category") currentCategoryFilter = "";
 
       currentPage = 1;
       syncUrl();
@@ -71,15 +60,19 @@ function renderActiveFilterBar() {
     });
   });
 
-  document.getElementById("resetAllFilters").addEventListener("click", () => {
-    currentTagFilter = "";
-    currentCategoryFilter = "";
-    currentKeyword = "";
-    currentPage = 1;
-    document.getElementById("searchInput").value = "";
-    syncUrl();
-    updateList();
-  });
+  const resetButton = document.getElementById("resetAllFilters");
+  if (resetButton) {
+    resetButton.addEventListener("click", () => {
+      currentTagFilter = "";
+      currentCategoryFilter = "";
+      currentKeyword = "";
+      currentPage = 1;
+      const searchInput = document.getElementById("searchInput");
+      if (searchInput) searchInput.value = "";
+      syncUrl();
+      updateList();
+    });
+  }
 }
 
 function syncUrl() {
@@ -93,31 +86,29 @@ function syncUrl() {
   window.history.replaceState({}, "", url);
 }
 
-function renderPostList(posts, currentPageValue, postsPerPage) {
+function renderPostList(posts, page, postsPerPage) {
   const postList = document.getElementById("postList");
+  if (!postList) return;
 
   if (posts.length === 0) {
     postList.innerHTML = `<div class="empty-state">조건에 맞는 포스트가 없습니다.</div>`;
     return;
   }
 
-  const startIndex = (currentPageValue - 1) * postsPerPage;
+  const startIndex = (page - 1) * postsPerPage;
   const visiblePosts = posts.slice(startIndex, startIndex + postsPerPage);
 
-  postList.innerHTML = visiblePosts.map(post => `
+  postList.innerHTML = visiblePosts.map((post) => `
     <a class="post-card-link" href="${buildPostUrl(post.relativePath)}">
       <article class="post-card">
         <h2 class="post-title"><span class="gradient-title-text">${escapeHtml(post.title)}</span></h2>
-
         <p class="post-excerpt">${escapeHtml(post.excerpt)}</p>
-
         <div class="post-footer">
           <div class="post-info">
             <span>${escapeHtml(post.date)}</span>
             <a class="category-link" href="${buildFilterLink("category", post.category)}">${escapeHtml(post.category)}</a>
           </div>
         </div>
-
         <div class="post-tags-row">
           <span class="meta-label-inline">Tags</span>
           <div class="post-inline-chips">
@@ -128,7 +119,7 @@ function renderPostList(posts, currentPageValue, postsPerPage) {
     </a>
   `).join("");
 
-  postList.querySelectorAll(".category-link, .mini-chip-link").forEach(link => {
+  postList.querySelectorAll(".category-link, .mini-chip-link").forEach((link) => {
     link.addEventListener("click", (event) => {
       event.preventDefault();
       event.stopPropagation();
@@ -137,8 +128,10 @@ function renderPostList(posts, currentPageValue, postsPerPage) {
   });
 }
 
-function renderPagination(posts, currentPageValue, postsPerPage) {
+function renderPagination(posts, page, postsPerPage) {
   const pagination = document.getElementById("pagination");
+  if (!pagination) return;
+
   const totalPages = Math.ceil(posts.length / postsPerPage);
 
   if (totalPages <= 1) {
@@ -146,44 +139,43 @@ function renderPagination(posts, currentPageValue, postsPerPage) {
     return;
   }
 
-  const items = createPaginationItems(totalPages, currentPageValue);
-  const prevDisabled = currentPageValue <= 1;
-  const nextDisabled = currentPageValue >= totalPages;
+  const items = createPaginationItems(totalPages, page);
+  const prevDisabled = page <= 1;
+  const nextDisabled = page >= totalPages;
 
   pagination.innerHTML = `
-    <button class="page-segment nav ${prevDisabled ? "disabled" : ""}" data-page="${currentPageValue - 1}" ${prevDisabled ? "disabled" : ""}>
-      이전
-    </button>
-
-    ${items.map(item => {
+    <button class="page-segment nav ${prevDisabled ? "disabled" : ""}" data-page="${page - 1}" ${prevDisabled ? "disabled" : ""}>이전</button>
+    ${items.map((item) => {
       if (item === "ellipsis") {
         return `<span class="page-segment ellipsis">···</span>`;
       }
 
       return `
-        <button class="page-segment number ${item === currentPageValue ? "active" : ""}" data-page="${item}">
-          ${item}
-        </button>
+        <button class="page-segment number ${item === page ? "active" : ""}" data-page="${item}">${item}</button>
       `;
     }).join("")}
-
-    <button class="page-segment nav ${nextDisabled ? "disabled" : ""}" data-page="${currentPageValue + 1}" ${nextDisabled ? "disabled" : ""}>
-      다음
-    </button>
+    <button class="page-segment nav ${nextDisabled ? "disabled" : ""}" data-page="${page + 1}" ${nextDisabled ? "disabled" : ""}>다음</button>
   `;
 
-  pagination.querySelectorAll("button[data-page]").forEach(button => {
+  pagination.querySelectorAll("button[data-page]").forEach((button) => {
     button.addEventListener("click", () => {
       currentPage = Number(button.dataset.page);
       syncUrl();
       updateList();
-      window.scrollTo({ top: 0, behavior: "smooth" });
+      window.scrollTo({ top: 0, behavior: "auto" });
     });
   });
 }
 
 function updateList() {
   const filteredPosts = filterPosts(allPosts, currentKeyword, currentTagFilter, currentCategoryFilter);
+  const totalPages = Math.max(1, Math.ceil(filteredPosts.length / configData.postsPerPage));
+
+  if (currentPage > totalPages) {
+    currentPage = totalPages;
+    syncUrl();
+  }
+
   renderActiveFilterBar();
   renderPostList(filteredPosts, currentPage, configData.postsPerPage);
   renderPagination(filteredPosts, currentPage, configData.postsPerPage);
@@ -192,17 +184,22 @@ function updateList() {
 
 function bindSearch() {
   const searchInput = document.getElementById("searchInput");
+  if (!searchInput) return;
 
-  searchInput.addEventListener("input", (event) => {
-    currentKeyword = event.target.value;
+  const onInput = debounce((value) => {
+    currentKeyword = value;
     currentPage = 1;
     syncUrl();
     updateList();
+  }, 120);
+
+  searchInput.addEventListener("input", (event) => {
+    onInput(event.target.value);
   });
 }
 
 function bindSidebarFilters() {
-  document.querySelectorAll('.chip-link[href*="tag="]').forEach(link => {
+  document.querySelectorAll('.chip-link[href*="tag="]').forEach((link) => {
     link.addEventListener("click", (event) => {
       event.preventDefault();
       const url = new URL(link.href, window.location.href);
@@ -214,7 +211,7 @@ function bindSidebarFilters() {
     });
   });
 
-  document.querySelectorAll('.chip-link[href*="category="]').forEach(link => {
+  document.querySelectorAll('.chip-link[href*="category="]').forEach((link) => {
     link.addEventListener("click", (event) => {
       event.preventDefault();
       const url = new URL(link.href, window.location.href);
@@ -249,18 +246,24 @@ async function init() {
   renderFavicon(configData);
   renderSidebar(configData, allPosts);
   renderFooter(configData);
-  initProtectedImages();
 
-  document.getElementById("pageTitle").textContent = configData.pageTitle;
-  document.getElementById("searchInput").value = currentKeyword;
+  const pageTitle = document.getElementById("pageTitle");
+  const searchInput = document.getElementById("searchInput");
+
+  if (pageTitle) pageTitle.textContent = configData.pageTitle;
+  if (searchInput) searchInput.value = currentKeyword;
 
   bindSearch();
   bindSidebarFilters();
   updateList();
-  createStars(configData.effects?.starCount ?? 260);
+  initProtectedImages();
+
+  window.requestAnimationFrame(() => {
+    createStars(configData.effects?.starCount ?? 260);
+  });
 }
 
-init().catch(error => {
+init().catch((error) => {
   console.error(error);
   document.body.innerHTML = `
     <div style="padding:24px;color:white;font-family:sans-serif;">

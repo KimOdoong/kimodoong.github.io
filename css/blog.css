@@ -60,6 +60,12 @@
   gap: 14px;
 }
 
+.post-card-link,
+.post-card,
+.post-title {
+  min-width: 0;
+}
+
 .post-card-link {
   display: block;
 }
@@ -68,6 +74,7 @@
   border-radius: var(--radius-lg);
   padding: 18px;
   transition: transform 0.16s ease, background 0.16s ease, border-color 0.16s ease;
+  overflow: hidden;
   cursor: pointer;
 }
 
@@ -80,14 +87,23 @@
 }
 
 .post-title {
+  width: 100%;
+  max-width: 100%;
+  display: -webkit-box;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: normal;
+  line-height: 1.32;
   font-size: 1.28rem;
   font-weight: 900;
   margin-bottom: 10px;
-  line-height: 1.32;
   background: var(--title-gradient);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
+  -webkit-box-orient: vertical;
+  line-clamp: 2;
+  -webkit-line-clamp: 2;
 }
 
 .post-excerpt {
@@ -144,6 +160,7 @@
 @media (max-width: 700px) {
   .main-header-top {
     align-items: stretch;
+    flex-direction: column;
   }
 
   .page-title {
@@ -153,32 +170,25 @@
   .post-title {
     font-size: 1.12rem;
   }
-}
 
+  .search-box {
+    min-width: 100%;
+  }
 
-.post-card-link,
-.post-card,
-.post-title {
-  min-width: 0;
-}
+  .pagination-bar {
+    gap: 6px;
+    border: none;
+    background: transparent;
+    box-shadow: none;
+    overflow: visible;
+    flex-wrap: wrap;
+  }
 
-.post-card {
-  overflow: hidden;
-}
-
-.post-title {
-  width: 100%;
-  max-width: 100%;
-  display: -webkit-box;
-  display: box;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: normal;
-  line-height: 1.32;
-
-  -webkit-box-orient: vertical;
-  box-orient: vertical;
-
-  line-clamp: 2;
-  -webkit-line-clamp: 2;
+  .page-segment {
+    min-width: 32px;
+    height: 28px;
+    border: 1px solid rgba(255,255,255,0.10);
+    border-radius: 8px;
+    background: rgba(255,255,255,0.05);
+  }
 }
