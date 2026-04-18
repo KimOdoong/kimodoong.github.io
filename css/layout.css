@@ -276,9 +276,9 @@ body.post-hide-sidebar .sidebar {
 }
 @media (max-width: 1100px) {
   .sidebar {
+    position: static !important;
     max-height: none !important;
     overflow: visible !important;
-    position: static !important;
   }
 
   .sidebar-scroll {
