@@ -163,3 +163,27 @@ body::before {
     animation: none;
   }
 }
+
+
+/* Actual index layout restoration */
+.simple-home {
+  width: min(calc(100% - 28px), 960px);
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.simple-home-hero,
+.simple-home-panel {
+  width: 100%;
+}
+
+.simple-home-hero {
+  min-height: 0;
+  padding: 34px 28px 40px;
+}
+
+@media (max-width: 700px) {
+  .simple-home {
+    width: min(calc(100% - 16px), 960px);
+  }
+}

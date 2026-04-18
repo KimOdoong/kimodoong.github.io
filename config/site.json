@@ -47,11 +47,13 @@
     "items": [
       {
         "label": "GitHub",
-        "url": "https://github.com/KimOdoong"
+        "url": "https://github.com/KimOdoong",
+        "iconPath": "../assets/icons/github.svg"
       },
       {
         "label": "이메일",
-        "url": "odoong0532@gmail.com"
+        "url": "mailto:your@email.com",
+        "iconPath": "./assets/icons/email.svg"
       }
     ],
     "copyright": "© 2026 김오둥."
@@ -70,4 +72,5 @@
     "border": "rgba(255, 255, 255, 0.10)",
     "panel": "rgba(255, 255, 255, 0.06)"
   }
+  
 }

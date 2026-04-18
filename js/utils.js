@@ -232,17 +232,41 @@ function renderFooter(config) {
   const footer = document.getElementById("footer");
   if (!footer) return;
 
+  const footerConfig = config.footer || {};
+  const followLabel = footerConfig.followLabel || "팔로우:";
+  const items = Array.isArray(footerConfig.items) ? footerConfig.items : [];
+  const copyright = footerConfig.copyright || "";
+
   footer.innerHTML = `
     <div class="footer-inner">
       <div class="footer-follow">
-        <span>${escapeHtml(config.footer.followLabel)}</span>
-        ${config.footer.items.map((item) => `
-          <a href="${escapeHtml(item.url)}" target="_blank" rel="noopener noreferrer">
-            ${escapeHtml(item.label)}
-          </a>
-        `).join("")}
+        <span>${escapeHtml(followLabel)}</span>
+        <div class="footer-icon-buttons">
+          ${items.map(item => {
+            const label = item?.label || "";
+            const url = item?.url || "#";
+            const iconPath = item?.iconPath || "";
+            const isExternal = /^(https?:)?\/\//i.test(url);
+            const isMail = /^mailto:/i.test(url);
+            const targetAttr = isExternal ? ` target="_blank" rel="noopener noreferrer"` : "";
+            const iconHtml = iconPath
+              ? `<img class="footer-icon-image" src="${escapeHtml(iconPath)}" alt="${escapeHtml(label)}" />`
+              : `<span class="footer-icon-fallback">${escapeHtml(label.slice(0, 1) || "?")}</span>`;
+
+            return `
+              <a
+                class="footer-icon-button"
+                href="${escapeHtml(url)}"
+                aria-label="${escapeHtml(label)}"
+                title="${escapeHtml(label)}"${targetAttr}
+              >
+                ${iconHtml}
+              </a>
+            `;
+          }).join("")}
+        </div>
       </div>
-      <div class="footer-copy">${escapeHtml(config.footer.copyright)}</div>
+      <div class="footer-copy">${escapeHtml(copyright)}</div>
     </div>
   `;
 }
