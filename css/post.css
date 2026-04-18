@@ -5,11 +5,36 @@
   align-items: start;
 }
 
-.post-view {
-  border-radius: var(--radius-lg);
+.post-view-header {
+  position: relative;
+  margin-bottom: 22px;
+  padding-bottom: 18px;
+  border-bottom: none !important;
+}
+.post-view-header {
+  position: relative;
   padding: 28px 32px;
-  width: 100%;
-  min-width: 0;
+  margin-bottom: 22px;
+  padding-bottom: 18px;
+  border-bottom: none !important;
+}
+
+.post-view-header::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 2px;
+  border-radius: 999px;
+  background: linear-gradient(
+    90deg,
+    rgba(99, 220, 255, 0.95) 0%,
+    rgba(119, 181, 255, 0.95) 35%,
+    rgba(142, 151, 255, 0.95) 68%,
+    rgba(178, 126, 255, 0.95) 100%
+  );
+  opacity: 0.9;
 }
 
 .post-view-header {
@@ -451,6 +476,29 @@
   }
 
   .post-view {
+    padding: 20px 16px;
+  }
+}
+
+
+
+
+/* post 페이지: 바깥 큰 박스만 쓰고, 안쪽 post-view 박스 제거 */
+.page-post .main {
+  padding: 28px 32px;
+}
+
+.page-post .post-view {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+  border-radius: 0 !important;
+  padding: 0 !important;
+}
+
+@media (max-width: 700px) {
+  .page-post .main {
     padding: 20px 16px;
   }
 }

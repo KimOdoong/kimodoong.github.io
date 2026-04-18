@@ -129,16 +129,43 @@
   border: 1px solid rgba(255,255,255,0.10);
 }
 
+
+
+
+
 .primary-button {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  background: transparent;
+  color: #08111f;
+  border: 1px solid rgba(255, 255, 255, 0.10);
+}
+
+.primary-button::before {
+  content: "";
+  position: absolute;
+  inset: 1px;
+  border-radius: calc(var(--radius-sm) - 1px);
+  z-index: -1;
   background: linear-gradient(
     90deg,
-    var(--accent-1) 0%,
-    var(--accent-2) 35%,
-    var(--accent-3) 68%,
-    var(--accent-4) 100%
+    rgba(99, 220, 255, 0.92) 4%,
+    rgba(119, 181, 255, 0.96) 34%,
+    rgba(142, 151, 255, 0.96) 66%,
+    rgba(178, 126, 255, 0.92) 96%
   );
-  color: #08111f;
 }
+
+.primary-button:hover::before {
+  filter: brightness(1.02) saturate(1.04);
+}
+
+
+
+
+
+
 
 .secondary-button,
 .back-link,
@@ -737,4 +764,62 @@ body > .simple-home + .footer .footer-copy {
     width: 18px;
     height: 18px;
   }
+}
+
+
+
+
+
+
+ 
+
+
+/* ===== gradient buttons edge fix ===== */
+/* 이력/작업/대회 탭 + 블로그 페이지네이션 active 버튼 공통 수정 */
+
+.tab-button.active,
+.page-segment.active {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  background: transparent !important;
+  color: #08111f !important;
+}
+
+/* 탭 버튼 */
+.tab-button.active::before {
+  content: "";
+  position: absolute;
+  inset: 1px;
+  z-index: -1;
+  border-radius: calc(var(--radius-sm) - 1px);
+  background: linear-gradient(
+    90deg,
+    rgba(99, 220, 255, 0.90) 6%,
+    rgba(119, 181, 255, 0.96) 34%,
+    rgba(142, 151, 255, 0.96) 66%,
+    rgba(178, 126, 255, 0.90) 94%
+  );
+}
+
+/* 블로그 페이지네이션 활성 버튼 */
+.page-segment.active::before {
+  content: "";
+  position: absolute;
+  inset: 1px;
+  z-index: -1;
+  border-radius: 0;
+  background: linear-gradient(
+    90deg,
+    rgba(99, 220, 255, 0.90) 6%,
+    rgba(119, 181, 255, 0.96) 34%,
+    rgba(142, 151, 255, 0.96) 66%,
+    rgba(178, 126, 255, 0.90) 94%
+  );
+}
+
+/* 살짝만 밝아지게 */
+.tab-button.active:hover::before,
+.page-segment.active:hover::before {
+  filter: brightness(1.02) saturate(1.03);
 }
